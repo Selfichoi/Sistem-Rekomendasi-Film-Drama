@@ -27,6 +27,7 @@ indices = pd.Series(df.index, index=df['title_lower']).drop_duplicates()
 # --- Fungsi Rekomendasi ---
 def recommend(title_input, cosine_sim=cosine_sim):
     title_input = title_input.lower().strip()
+
     if title_input not in indices:
         return ["❌ Judul tidak ditemukan. Coba cek ejaannya."]
     
@@ -35,10 +36,16 @@ def recommend(title_input, cosine_sim=cosine_sim):
 
     if len(sim_scores) <= 1:
         return ["❌ Tidak cukup data untuk merekomendasikan drama lain."]
+
+    # Cek dulu panjang data sebelum slicing
+    sorted_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
     
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:6]
-    drama_indices = [i[0] for i in sim_scores]
+    # Jika jumlah data kurang dari 6, ambil semampunya
+    top_k = sorted_scores[1:6] if len(sorted_scores) > 6 else sorted_scores[1:]
+    
+    drama_indices = [i[0] for i in top_k]
     return df['title'].iloc[drama_indices].tolist()
+
 
 # --- UI Streamlit ---
 st.markdown(
