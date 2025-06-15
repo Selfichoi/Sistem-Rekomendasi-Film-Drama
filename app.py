@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import streamlit as st
 
 # --- Konfigurasi Halaman Streamlit ---
-st.set_page_config(page_title="Rekomendasi Drakor", page_icon="🎬", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Rekomendasi Film & Drama", page_icon="🎬", layout="centered", initial_sidebar_state="collapsed")
 
 # --- Load Data ---
 df = pd.read_csv("IMBD.csv")
@@ -73,12 +73,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown('<div class="title">🎬 Sistem Rekomendasi Drakor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub">Temukan drama Korea yang mirip dengan favoritmu 🍿</div><br>', unsafe_allow_html=True)
+st.markdown('<div class="title">🎬 Sistem Rekomendasi Film & Drama</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub">Temukan Film & Drama yang mirip dengan favoritmu 🍿</div><br>', unsafe_allow_html=True)
 
 # Dropdown biar tidak typo
 judul_list = df['title'].sort_values().tolist()
-user_input = st.selectbox("Pilih judul drama Korea yang kamu suka:", options=judul_list)
+user_input = st.selectbox("Pilih judul yang kamu suka:", options=judul_list)
 
 if st.button("Rekomendasikan 🎉"):
     recommendations = recommend(user_input)
