@@ -12,7 +12,7 @@ df = pd.read_csv("IMBD.csv")
 df['description'] = df['description'].fillna('')
 df['genre'] = df['genre'].fillna('')
 df['content'] = df['genre'] + " " + df['description']
-df['title_lower'] = df['title'].str.lower()
+df['title_lower'] = df['title'].str.lower().str.strip()
 
 # --- TF-IDF Vectorization ---
 tfidf = TfidfVectorizer(stop_words='english')
@@ -21,7 +21,7 @@ tfidf_matrix = tfidf.fit_transform(df['content'])
 # --- Cosine Similarity antar drama ---
 cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 
-# --- Mapping judul ke index dataframe (lowercase agar aman dari typo kapital) ---
+# --- Mapping judul ke index dataframe ---
 indices = pd.Series(df.index, index=df['title_lower']).drop_duplicates()
 
 # --- Fungsi Rekomendasi ---
@@ -32,6 +32,10 @@ def recommend(title_input, cosine_sim=cosine_sim):
     
     idx = indices[title_input]
     sim_scores = list(enumerate(cosine_sim[idx]))
+
+    if len(sim_scores) <= 1:
+        return ["❌ Tidak cukup data untuk merekomendasikan drama lain."]
+    
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:6]
     drama_indices = [i[0] for i in sim_scores]
     return df['title'].iloc[drama_indices].tolist()
@@ -71,6 +75,9 @@ user_input = st.selectbox("Pilih judul drama Korea yang kamu suka:", options=jud
 
 if st.button("Rekomendasikan 🎉"):
     recommendations = recommend(user_input)
-    st.markdown("### Rekomendasi untukmu:")
-    for i, rec in enumerate(recommendations, 1):
-        st.write(f"{i}. **{rec}**")
+    if recommendations and "❌" in recommendations[0]:
+        st.warning(recommendations[0])
+    else:
+        st.markdown("### Rekomendasi untukmu:")
+        for i, rec in enumerate(recommendations, 1):
+            st.write(f"{i}. **{rec}**")
